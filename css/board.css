@@ -1,0 +1,53 @@
+#board {
+    height: 50%;
+    border: 5px solid black;
+}
+
+.row1, .row2, .row3, .row4, .row5, .row6, .row7, .row8, .row9{
+    margin: 0%;
+    padding: 0%;
+    width: 100%;
+    height: 5.5%;
+    display: flex;
+    justify-content: center;
+}
+
+.row3, .row6{
+    border-bottom: 2px solid black;
+}
+
+.cell3, .cell6{
+    border-right: 2px solid black;
+}
+
+input{
+    margin: 0;
+    padding: 0;
+    font-size: 3em;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+}
+
+.tooltip {
+    margin:8px;
+	padding:8px;
+	border:1px solid blue;
+	background-color:yellow;
+	position: absolute;
+	z-index: 2;
+}
+
+.error {
+    margin:8px;
+	padding:8px;
+	border:1px solid blue;
+	background-color:red;
+	position: absolute;
+	z-index: 2;
+}
+
+span>input:focus span>span{
+    visibility: visible;
+}

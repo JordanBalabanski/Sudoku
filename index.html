@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/board.css">
+    <link rel="stylesheet" href="css/difficulty.css">
+    <link rel="stylesheet" href="css/state.css">
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+    </script>
+    <script type="module" src="js/app.js"></script>
+    <!-- <script src="js/setup.js"></script>
+    <script src="js/api.js"></script> -->
+    <title>Sudoku</title>
+</head>
+
+<body>
+    <header>
+        <h1>Sudoku</h1>
+        <p>Welcome to Sudoku. The rules are:
+            <ul>
+                <li>every row should contain the digits 1 to 9 only once;</li>
+                <li>every column should contain the digits 1 to 9 only once;</li>
+                <li>every section(square) should contain the digits 1 to 9 only once.</li>
+            </ul>
+        </p>
+    </header>
+    <main>
+        <section class="messages">
+            <h2 id="title"></h2>
+            <p id="content"></p>
+        </section>
+        <section id="difficulty">
+            <h2><span>Difficulty: </span> <span id="diff"></span></h2>
+            <div id="new-game" class="activate">New Game</div>
+            <div id="choose-diff" class="collapse">
+                <button id="easy">Easy</button>
+                <button id="medium">Medium</button>
+                <button id="hard">Hard</button>
+                <button id="random">Random</button>
+            </div>
+        </section>
+        <section id="game-board">
+            <div id="board">
+                <!-- <div class="row1">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row2">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row3">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row4">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row5">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row6">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row7">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row8">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div>
+                <div class="row9">
+                    <input class="col1">
+                    <input class="col2">
+                    <input class="col3">
+                    <input class="col4">
+                    <input class="col5">
+                    <input class="col6">
+                    <input class="col7">
+                    <input class="col8">
+                    <input class="col9">
+                </div> -->
+            </div>
+        </section>
+        <section id="state">
+            <span>
+                <i id="undo" class="fas fa-arrow-alt-circle-left"></i>
+                <i id="redo" class="fas fa-arrow-alt-circle-right"></i>
+            </span>
+            <span>
+                
+            </span>
+            <span>
+                <button id="validate">Validate</button>
+                <span id="status">unsolved</span>
+            </span>
+            <span>
+                <button id="solve">Solve</button>
+                <button id="reset">Reset</button>
+            </span>
+        </section>
+    </main>
+    <footer>
+        Created by: J.B.
+    </footer>
+</body>
+
+</html>

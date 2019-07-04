@@ -1,0 +1,30 @@
+#difficulty{
+    margin: 2% 0%;
+    text-align: center;
+}
+
+#choose-diff{
+    margin: 2% 0%;
+    text-align: center;
+}
+
+#new-game{
+    font-size: 36px;
+    background: lightblue;
+    color: white;
+    border-radius: 2rem;
+}
+
+#new-game:hover{
+    border: 1px solid black;
+    background: white;
+    color: lightblue;
+}
+
+.collapse {
+    display: none;
+}
+
+.collapsed {
+    display: block;
+}
