@@ -16,7 +16,7 @@
     border-bottom: 2px solid black;
 }
 
-.cell3, .cell6{
+.col3, .col6{
     border-right: 2px solid black;
 }
 
@@ -33,8 +33,9 @@ input{
 .tooltip {
     margin:8px;
 	padding:8px;
-	border:1px solid blue;
-	background-color:yellow;
+	border:1px solid black;
+    background-color:lightgreen;
+    border-radius: 1rem;
 	position: absolute;
 	z-index: 2;
 }

@@ -37,8 +37,9 @@ function setup() {
         let newBoard = JSON.parse(JSON.stringify(boardHistory[historyIndex]["board"]));
         console.log(newBoard);
         newBoard[row][col] = $(this).val().length>0 ? +$(this).val() : 0;
-        boardHistory.push({"board": newBoard});
+        boardHistory.push({"board": newBoard, "hints": [[],[],[],[],[],[],[],[],[]]});
         historyIndex=boardHistory.length-1;
+        validateAllCells();
     });
 
     $('input').bind({
@@ -60,10 +61,11 @@ function manageBoard(difficultyString) {
             getGrade(data).done(grade => {
                 let { difficulty } = grade;
                 setBoard(boardHistory[historyIndex]["board"], status, difficulty);
+                validateAllCells();
             })
         }
         setBoard(boardHistory[historyIndex]["board"], status, difficultyString);
-        validateCells(boardHistory[historyIndex]["board"]);
+        validateAllCells();
     })
     .catch(err => {
         console.log(err);
@@ -77,6 +79,9 @@ function validate(){
         .done(res => {
             let { status } = res;
             $('#status').text(status);
+            if (status === "solved") {
+                $('#congrats-message').css({"display": "block"});
+            }
         })
 }
 
@@ -103,6 +108,7 @@ function solve() {
     getSolved(boardHistory[0])
     .done(function (data) {
         setBoard(data.solution, data.status,data.difficulty);
+        $('#congrats-message').css({"display": "block"});
     })
 }
 
@@ -210,5 +216,67 @@ function validateAllCells() {
 }
 
 function validateCell(row, col) {
+    let validNums = [];
+    let allNums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let invalidNumsRow = invalidInRow(row);
+    let invalidNumsCol = invalidInCol(col);
+    let invalidNumsSquare = invalidInSquare(row, col);
+    // console.log(invalidNumsRow, invalidNumsCol, invalidNumsSquare);
 
+    allNums.forEach(el => {
+        if (!invalidNumsRow.includes(el)
+            && !invalidNumsCol.includes(el)
+            && !invalidNumsSquare.includes(el)
+            && !validNums.includes(el)) {
+            validNums.push(el);
+        }
+    })
+
+    boardHistory[historyIndex]["hints"][row][col] = validNums;
+    $(`.row${row+1}>.col${col+1}`).attr("data-tooltip", `The valid numbers are: ${validNums.toString()}`);
+    console.log(validNums.toString(), invalidNumsRow, invalidNumsCol, invalidNumsSquare);
+}
+
+function invalidInRow(row) {
+    let invalidNums = [];
+    boardHistory[historyIndex]["board"][row].forEach(el => {
+        if (el != 0) {
+            invalidNums.push(el);
+        }
+    });
+
+    return invalidNums;
+}
+
+function invalidInCol(col) {
+    let invalidNums = [];
+    boardHistory[historyIndex]["board"].forEach(el => {
+        if (el[col] != 0) {
+            invalidNums.push(el[col]);
+        }
+    });
+
+    return invalidNums;
+}
+
+function invalidInSquare(row, col) {
+    let invalidNums = [];
+    let rowStartIndex = (row>=0 && row<=2) ? 0 : (row>=3 && row<=5) ? 3 : 6;
+    let rowEndIndex = (row>=0 && row<=2) ? 2 : (row>=3 && row<=5) ? 5 : 8;
+    let colStartIndex = (col>=0 && col<=2) ? 0 : (col>=3 && col<=5) ? 3 : 6;
+    let colEndIndex = (col>=0 && col<=2) ? 2 : (col>=3 && col<=5) ? 5 : 8;
+
+    console.log(rowStartIndex, rowEndIndex, colStartIndex, colEndIndex);
+
+    for (let i = rowStartIndex; i <= rowEndIndex; i++) {
+        for (let j = colStartIndex; j <= colEndIndex; j++) {
+            let num = boardHistory[historyIndex]["board"][i][j];
+            if (num != 0) {
+                console.log(num);
+                invalidNums.push(num);
+            }
+        }
+    }
+
+    return invalidNums;
 }

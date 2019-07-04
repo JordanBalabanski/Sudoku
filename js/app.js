@@ -55,4 +55,8 @@ $(function() {
         redo();
     });
     
+    $('#close-button').click(function() {
+        $('#congrats-message').css({"display": "none"});
+        reset();
+    })
 })

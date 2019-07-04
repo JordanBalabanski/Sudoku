@@ -35,6 +35,28 @@ button:hover, i:hover{
     color: lightblue;
 }
 
+#congrats-message{
+    text-align: center;
+    position: absolute;
+    display: none;
+    background-color: lightgreen;
+    border: 1px solid black;
+    border-radius: 2rem;
+    width: 20%;
+    top: 50%;
+    left: 39.8%;
+}
+
+#close-button{
+    background-color: darkgreen;
+    border: 1px solid black;
+    border-radius: 1rem;
+}
+
+#close-button:hover{
+    background-color: green;
+}
+
 i {
     padding: 2px;
     position: relative;
