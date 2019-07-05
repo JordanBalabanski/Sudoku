@@ -40,7 +40,7 @@ function setup() {
         boardHistory.push({"board": newBoard, "messages": [[],[],[],[],[],[],[],[],[]]});
         historyIndex=boardHistory.length-1;
         validateAllCells();
-        checkForErrors(row, col);
+        // checkForErrors(row, col);
     });
 
     $('input').bind({
@@ -318,7 +318,7 @@ function validateCell(row, col) {
 
     boardHistory[historyIndex]["messages"][row][col] = { "hints": validNums, "errors": "" };
     $(`.row${row+1}>.col${col+1}`).attr("data-tooltip", `The valid numbers are: ${validNums.toString()}`);
-    // console.log(validNums.toString(), invalidNumsRow, invalidNumsCol, invalidNumsSquare);
+    checkForErrors(row, col);
 }
 
 function invalidInRow(row, col) {
