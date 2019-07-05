@@ -40,13 +40,18 @@ input{
 	z-index: 2;
 }
 
-.error {
+.error-tooltip {
     margin:8px;
 	padding:8px;
-	border:1px solid blue;
-	background-color:red;
+	border:1px solid black;
+    background-color:red;
+    border-radius: 1rem;
 	position: absolute;
 	z-index: 2;
+}
+
+.error {
+	background-color:red;
 }
 
 span>input:focus span>span{

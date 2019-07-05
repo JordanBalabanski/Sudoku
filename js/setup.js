@@ -8,7 +8,7 @@ function setup() {
     for (var i = 0; i < 9; i++) {
         let $div = $(`<div class="row${i+1}"></div>`);
         for (var j = 0; j < 9; j++) {
-            let $span = $(`<input class="col${j+1}" data-tooltip="hello!">`)
+            let $span = $(`<input class="col${j+1}" data-tooltip="" data-error="">`)
             // let $input = $(`<input class="col${j+1}">`);
             $div.append($span);
         }
@@ -28,18 +28,19 @@ function setup() {
     });
 
     $('input').change(function(e) {
-        let col = $(this).attr("class");
+        let col = $(this).attr("class").split(' ')[0];
         let row = $(this).parent().attr("class");
         col = +col.slice(col.length-1) - 1;
         row = +row.slice(row.length-1) - 1;
 
-        console.log($(this).val());
+        // console.log($(this).val());
         let newBoard = JSON.parse(JSON.stringify(boardHistory[historyIndex]["board"]));
-        console.log(newBoard);
+        // console.log(newBoard);
         newBoard[row][col] = $(this).val().length>0 ? +$(this).val() : 0;
-        boardHistory.push({"board": newBoard, "hints": [[],[],[],[],[],[],[],[],[]]});
+        boardHistory.push({"board": newBoard, "messages": [[],[],[],[],[],[],[],[],[]]});
         historyIndex=boardHistory.length-1;
         validateAllCells();
+        checkForErrors(row, col);
     });
 
     $('input').bind({
@@ -56,7 +57,7 @@ function manageBoard(difficultyString) {
     getBoardData(difficultyString)
     .then(data => {
         boardHistory.push(data);
-        boardHistory[historyIndex]["hints"] = [[],[],[],[],[],[],[],[],[]];
+        boardHistory[historyIndex]["messages"] = [[],[],[],[],[],[],[],[],[]];
         if (difficultyString === 'random') {
             getGrade(data).done(grade => {
                 let { difficulty } = grade;
@@ -146,13 +147,14 @@ function undo(){
     // console.log(historyIndex);
     let isDone = false;
 
-    console.log(boardHistory[historyIndex]["board"], historyIndex);
+    // console.log(boardHistory[historyIndex]["board"], historyIndex);
 
     for (let row = 0; row < boardHistory[historyIndex]["board"].length; row++) {
         for (let column = 0; column < boardHistory[historyIndex]["board"][row].length; column++) {
             if (boardHistory[historyIndex]["board"][row][column] !== boardHistory[historyIndex+1]["board"][row][column]) {
                 let value = boardHistory[historyIndex]["board"][row][column] != 0 ? boardHistory[historyIndex]["board"][row][column] : ""
                 $(`.row${row+1}>.col${column+1}`).val(value);
+                checkForErrors(row, col);
                 isDone = true;
                 break;
             }
@@ -187,39 +189,121 @@ function redo(){
 
 export { setup, manageBoard, reset, solve, validate, undo, redo };
 
-var changeTooltipPosition = function(event) {
+var changeTooltipPosition = function(event, clazz) {
     var tooltipX = event.pageX - 8;
     var tooltipY = event.pageY + 8;
-    $('div.tooltip').css({top: tooltipY, left: tooltipX});
+    $(`div.${clazz}`).css({top: tooltipY, left: tooltipX});
 };
 
 var showTooltip = function(event) {
     $('div.tooltip').remove();
-    $(`<div class="tooltip">${$(this).attr("data-tooltip")}</div>`)
-        .appendTo('body');
-    changeTooltipPosition(event);
+    $('div.error-tooltip').remove();
+    let clazz;
+    if($(this).val() === "" && !$(this).hasClass("error")) {
+        $(`<div class="tooltip">${$(this).attr("data-tooltip")}</div>`)
+            .appendTo('body');
+        clazz = "tooltip";
+    } else {
+        $(`<div class="error-tooltip">${$(this).attr("data-error")}</div>`)
+            .appendTo('body');
+        clazz = "error-tooltip";
+    }
+    changeTooltipPosition(event, clazz);
 };
 
 var hideTooltip = function() {
     $('div.tooltip').remove();
+    $('div.error-tooltip').remove();
 };
 
 function validateAllCells() {
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
-            if(boardHistory[historyIndex]["board"][i][j] !== 0){
-                continue;
-            }
+            // if(boardHistory[historyIndex]["board"][i][j] !== 0){
+            //     continue;
+            // }
             validateCell(i, j);
         }
     }
 }
 
+function checkForErrors(row, col) {
+    let element = boardHistory[historyIndex]["board"][row][col];
+    let validNums = boardHistory[historyIndex]["messages"][row][col]["hints"];
+    if (validNums.includes(element) || element === 0) {
+        $(`.row${row+1}>.col${col+1}`).removeClass("error");
+        boardHistory[historyIndex]["messages"][row][col]["errors"] = "";
+        $(`.row${row+1}>.col${col+1}`).attr('data-error', "");
+    } else {
+        $(`.row${row+1}>.col${col+1}`).addClass("error");
+        let indexInRow = findDuplicatedCellInRow(row, col, element);
+        let indexInCol = findDuplicatedCellInCol(row, col, element);
+        let indexInSquare = findDuplicatedCellInSquare(row, col, element);
+
+        // console.log(indexInRow, indexInCol, indexInSquare);
+
+        let errorMsg = 'This value duplicates cells:';
+        if (indexInRow.length > 0) {
+            errorMsg += ` - in row: ${indexInRow.toString()};`;
+        }
+        if (indexInCol.length > 0) {
+            errorMsg += ` - in column: ${indexInCol.toString()};`;
+        }
+        if (indexInSquare.length > 0) {
+            errorMsg += ` - in square: ${indexInSquare.toString()};`;
+        }
+        // console.log(errorMsg);
+        boardHistory[historyIndex]["messages"][row][col]["errors"] = errorMsg;
+        $(`.row${row+1}>.col${col+1}`).attr('data-error', errorMsg);
+    }
+
+}
+
+function findDuplicatedCellInRow(row, col, element) {
+    let cells = [];
+    boardHistory[historyIndex]["board"][row].forEach((el, idx) => {
+        if (el === element && idx != col) {
+            cells.push([row+1, idx+1]);
+        }
+    });
+    return cells;
+}
+
+function findDuplicatedCellInCol(row, col, element) {
+    let cells = [];
+    boardHistory[historyIndex]["board"].forEach((el, idx) => {
+        if (el[col] === element && idx != row) {
+            cells.push([idx+1, col+1]);
+        }
+    });
+    return cells;
+}
+
+function findDuplicatedCellInSquare(row, col, element) {
+    let rowStartIndex = (row>=0 && row<=2) ? 0 : (row>=3 && row<=5) ? 3 : 6;
+    let rowEndIndex = (row>=0 && row<=2) ? 2 : (row>=3 && row<=5) ? 5 : 8;
+    let colStartIndex = (col>=0 && col<=2) ? 0 : (col>=3 && col<=5) ? 3 : 6;
+    let colEndIndex = (col>=0 && col<=2) ? 2 : (col>=3 && col<=5) ? 5 : 8;
+
+    let cells = []
+
+    for (let i = rowStartIndex; i <= rowEndIndex; i++) {
+        for (let j = colStartIndex; j <= colEndIndex; j++) {
+            let num = boardHistory[historyIndex]["board"][i][j];
+            if (num === element && (i != row || j != col)) {
+                cells.push([i+1, j+1]);
+            }
+        }
+    }
+    return cells;
+}
+
+
 function validateCell(row, col) {
     let validNums = [];
     let allNums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    let invalidNumsRow = invalidInRow(row);
-    let invalidNumsCol = invalidInCol(col);
+    let invalidNumsRow = invalidInRow(row, col);
+    let invalidNumsCol = invalidInCol(row, col);
     let invalidNumsSquare = invalidInSquare(row, col);
     // console.log(invalidNumsRow, invalidNumsCol, invalidNumsSquare);
 
@@ -232,15 +316,15 @@ function validateCell(row, col) {
         }
     })
 
-    boardHistory[historyIndex]["hints"][row][col] = validNums;
+    boardHistory[historyIndex]["messages"][row][col] = { "hints": validNums, "errors": "" };
     $(`.row${row+1}>.col${col+1}`).attr("data-tooltip", `The valid numbers are: ${validNums.toString()}`);
-    console.log(validNums.toString(), invalidNumsRow, invalidNumsCol, invalidNumsSquare);
+    // console.log(validNums.toString(), invalidNumsRow, invalidNumsCol, invalidNumsSquare);
 }
 
-function invalidInRow(row) {
+function invalidInRow(row, col) {
     let invalidNums = [];
-    boardHistory[historyIndex]["board"][row].forEach(el => {
-        if (el != 0) {
+    boardHistory[historyIndex]["board"][row].forEach((el, idx) => {
+        if (el != 0 && idx != col) {
             invalidNums.push(el);
         }
     });
@@ -248,10 +332,10 @@ function invalidInRow(row) {
     return invalidNums;
 }
 
-function invalidInCol(col) {
+function invalidInCol(row, col) {
     let invalidNums = [];
-    boardHistory[historyIndex]["board"].forEach(el => {
-        if (el[col] != 0) {
+    boardHistory[historyIndex]["board"].forEach((el, idx) => {
+        if (el[col] != 0 && idx != row) {
             invalidNums.push(el[col]);
         }
     });
@@ -266,13 +350,13 @@ function invalidInSquare(row, col) {
     let colStartIndex = (col>=0 && col<=2) ? 0 : (col>=3 && col<=5) ? 3 : 6;
     let colEndIndex = (col>=0 && col<=2) ? 2 : (col>=3 && col<=5) ? 5 : 8;
 
-    console.log(rowStartIndex, rowEndIndex, colStartIndex, colEndIndex);
+    // console.log(rowStartIndex, rowEndIndex, colStartIndex, colEndIndex);
 
     for (let i = rowStartIndex; i <= rowEndIndex; i++) {
         for (let j = colStartIndex; j <= colEndIndex; j++) {
             let num = boardHistory[historyIndex]["board"][i][j];
-            if (num != 0) {
-                console.log(num);
+            if (num != 0 && i != row && j != col) {
+                // console.log(num);
                 invalidNums.push(num);
             }
         }
