@@ -103,6 +103,7 @@ function reset() {
     let diff = '';
     status = '';
     setBoard(boardData, status, diff);
+    validateAllCells();
 }
 
 function solve() {
@@ -145,22 +146,17 @@ function undo(){
     // console.log(historyIndex);
     historyIndex--;
     // console.log(historyIndex);
-    let isDone = false;
 
     // console.log(boardHistory[historyIndex]["board"], historyIndex);
 
     for (let row = 0; row < boardHistory[historyIndex]["board"].length; row++) {
         for (let column = 0; column < boardHistory[historyIndex]["board"][row].length; column++) {
+            checkForErrors(row, column);
+            
             if (boardHistory[historyIndex]["board"][row][column] !== boardHistory[historyIndex+1]["board"][row][column]) {
                 let value = boardHistory[historyIndex]["board"][row][column] != 0 ? boardHistory[historyIndex]["board"][row][column] : ""
                 $(`.row${row+1}>.col${column+1}`).val(value);
-                checkForErrors(row, col);
-                isDone = true;
-                break;
             }
-        }
-        if (isDone) {
-            break;
         }
     }
 }
@@ -170,19 +166,14 @@ function redo(){
         return;
     }
     historyIndex++;
-    let isDone = false;
 
     for (let row = 0; row < boardHistory[historyIndex]["board"].length; row++) {
         for (let column = 0; column < boardHistory[historyIndex]["board"][row].length; column++) {
+            checkForErrors(row, column);
             if (boardHistory[historyIndex]["board"][row][column] != boardHistory[historyIndex-1]["board"][row][column]) {
                 let value = boardHistory[historyIndex]["board"][row][column] != 0 ? boardHistory[historyIndex]["board"][row][column] : ""
                 $(`.row${row+1}>.col${column+1}`).val(value);
-                isDone = true;
-                break;
             }
-        }
-        if (isDone) {
-            break;
         }
     }
 }
